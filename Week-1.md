@@ -89,3 +89,16 @@
 - Manipulate with `SET`, `GET`
 - clasic usecase: 
     - cache database response as JSON to offload the database
+- Manipulate as a number, but stored still as string
+- `INCR`, `INCRBY`, `DECR`, `DECRBY`
+    - increment - `INCR key`
+    - if not existed will be created as 0 then increment with 1
+    - `INCRBY key -1` can also decrement
+    - will throw error if not int
+- `INCRBYFLOAT key `
+- `TYPE key` - string
+- `OBJECT ENCODING key` - eg: int, embstr
+
+- supports Polymorphism - can change data type
+- no schema enforcing
+
