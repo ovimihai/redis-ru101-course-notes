@@ -63,6 +63,8 @@
 - `EXISTS  key [key ...]`
     - 1 exists
     - 0 doesn't exist
+- `GETRANGE key start stop` - get elements from string
+- `APPEND key string` - appends a string to another value (can be int, wil rezult string)
 
 ### Keys expiration
 - Expiration times set in: miliseconds, seconds or UNIX timestamp
@@ -101,4 +103,52 @@
 
 - supports Polymorphism - can change data type
 - no schema enforcing
+
+## Hashes
+- similar to a Python dictionaries
+- mutable: add, change, incremente, remove
+- store values as strings
+- schemaless, but can think as lightweight objects or as rows
+- create - `HSET key field value [field value ..]`
+- get one `HGET key field`
+- get all - `HGETALL key`
+- update - `HSET key field other_value`
+- delete one field - `HDEL key field`
+- increment - `HINCRBY key field value` or `HINCRBYFLOAT`
+- performance O(1)
+- `HGETALL` - O(n)
+- good for small number of fields
+- not good for JSON, better use RedisJSON
+- delete full hash `DEL key`
+- `HEXISTS key field`
+- set if not exists `HSETNX key field value` 
+- `HSCAN key cursor MATCH pattern` - more efficient than HGETALL
+- `HMGET key field [field ..]`
+- `HKEYS key` - get all fields from hash - dev only
+- `HVALS key` - get all values from hash - dev only
+- good for sessions, rate limiting
+
+## Lists
+- similar to a Python list
+- can add duplicate elements
+- implemented as a doubly linked list
+- great for sorting strings, implementing stacks and queues
+- add elements `LPUSH key value` to the left,  `RPUSH key value` to the right
+- remove elements `LPOP key value` from the left, `RPOP key value` from the right
+- when you remove the last element, the list will not exist any more
+- find first 5 elements `LRANGE key 0 5`
+- find last 5 elements `LRANGE key -5 -1`
+- get all elements `LRANGE key 0 -1`
+- length `LLEN`
+- LPOP, RPUSH, LLEN - O(1)
+- LRANGE - O(s+n) start+number of elements
+- `LMOVE` atomically moves elements from one list to another
+- `LTRIM` reduces a list to the specified range of elements
+- stack: `LPUSH` & `LPOP`
+- queue: `RPUSH` & `LPOP`
+- `LINDEX key index`
+- `LINSERT key BEFORE/AFTER pivot_value`
+- `LSET key index value`
+- `LREM key cout value`
+- usage: activity stream (recent activity), producer-consummer
 
