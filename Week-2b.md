@@ -31,4 +31,14 @@
             - for small lists - from HEAD to start offset
             - for large lists - nearest end (HEAD or TAIL) to the start offset
         - N the number of elements requested
+        - e.g.
+            - `LRANGE list 9 17`
+            - S=10, N=9 - start from 0 and count all elements returned
+            - ![alt text](image-2.png)
 
+- things to consider
+    - each command time complexity is documented
+    - cardinality of the data
+    - multiplying factors
+    - clock times are not O time
+    - should always test on real volume datasets
