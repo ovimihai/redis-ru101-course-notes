@@ -152,3 +152,80 @@
 - `LREM key cout value`
 - usage: activity stream (recent activity), producer-consummer
 
+## Sets
+- set of values with no duplicates
+- good for deduplication
+- order not guaranteed
+- efficient membership check
+- `SADD key value` - add an element
+- `SCARD key` - number of members
+- `SISMEMBER key value` - check value exists
+- `SINTER key1 key2` - find common elements in sets
+- `SMEMBERS key` - get all values, not for prod
+- `SSCAN key cursor [MATCH pattern] [COUNT count]`
+- `SREM key value`
+- `SPOP key count` - removes count elements, default 1
+- `SUNION a b` - all distinct elements
+- `SDIFF a b` - elements in a but not in b
+- `SINTERSTORE`, `SUNIONSTOR`, `SDIFFSTORE` - store the result
+- use cases:
+    - tag cloud
+    - unique visitors about.html:20240311, can set expire
+- logged visitors pattern
+    - `SADD online:1000 42` & `SADD online:1050 42` 
+        - add to the current and next 5min interval
+        - set ttl to 5min, 10min
+    - read from the `online:1000` set
+    - no need to remove players
+
+## Sorted sets
+- ordered list of elements
+- usefull for: priority queues, leaderboards and secondary indexing in general
+- set member and score (float)
+    - sort by score, then member lexicografic
+- can have same score, but the set contains unique values
+- `ZADD key score member`
+- `ZADD key [NX|XX] [CH] [INCR] score member [scode member]`
+    - NX - adds if not exists
+    - XX - updates an existing element
+    - CH - return the number of elements changed
+    - INCR - increment score member pair
+- `ZINCRBY key increment member`
+- `ZRANGE key start end [WITHSCORES]`
+- `ZREVRANGE key start end [WITHSCORES]`
+- `ZRANK key member` - get the member rank, 0 based
+- `ZREVRANK key member` - element 0 has the largest score
+- `ZSCORE key member` - returns the members score
+- suports Union and Intersection
+- not nestable
+- `ZCOUNT key min max` - count elements between min and max score inclusive
+- `ZRANGEBYSCORE key min max [WITHSCORES] [LIMIT offset count]` - get elements by score, starting at min
+- `ZREM key member [member]` - match by value, not score
+- `ZREMRANGEBYLEX key min max` - remove by value for the same score
+    - `ZREMRANGEBYLEX myzset (alpha [omega` can specify exclusive or inclusive
+- `ZREMRANGEBYRANK` - remove by position
+- `ZREMRANGEBYSCORE` - remove by score
+
+- allow Intersection and Union, not Diff
+    - the results are only available through another set
+```
+ZINTERSTORE dest numkeys key [key ..]
+[WEIGHTS weight [weight]]
+[AGGREGATE SUM|MIN|MAX]
+```
+```
+ZUNIONSTORE dest numkeys key [key ..]
+[WEIGHTS weight [weight]]
+[AGGREGATE SUM|MIN|MAX]
+```
+- use cases
+    - leaderboard
+        - `ZADD lb ...`
+        - `ZINCRBY lb 50 jane`
+        - `ZREVRANGE lb 0 2 WITHSCORES` - top 3
+        - `ZREMRANGEBYRANL lb 0 -4` - reduce the list to 3 elements
+    - priority queue
+        - `ZRANGE pq 0 0` - get the first by priority
+        - `ZREM pq p1-item1` - remove by value
+        - can be combined in a transction to make them safe
+        
