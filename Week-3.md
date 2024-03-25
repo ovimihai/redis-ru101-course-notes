@@ -38,7 +38,7 @@
     - `UNWATCH key` stop watching a key
 - abort transaction if observed key change
 
-![alt text](image-3.png)
+![alt text](media/image-multi-watch.png)
 
 ## Hashes
 - mini-key value store within a key
