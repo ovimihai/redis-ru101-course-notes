@@ -1,0 +1,10 @@
+
+services:
+  web:
+    build: .
+    volumes:
+     - .:/code
+    depends_on:
+     - redis
+  redis:
+    image: redis:7.2.4-alpine

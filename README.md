@@ -1,7 +1,7 @@
 # Redis University RU101 Course Notes
 
 
-# Notes
+## Notes
 - [Week 1](Week-1.md)
     - Keys, Strings
     - Setup
@@ -18,3 +18,6 @@
     - Hashes
     - 
 
+
+## Materials
+- [Code repo](https://github.com/redislabs-training/ru101)
