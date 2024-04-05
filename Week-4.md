@@ -79,3 +79,19 @@
     - 19 is  10011
     - 42 is 101010
     - and   000010 = 2
+
+### Use cases
+- Histograms
+    - `BITFIELD hist INCRBY u32 #23 1` - set one counter
+    - `BITFIELD hist GET u32 #23` - get one counter
+    - `GET hist` - get all counters
+- Permission bits & masks
+    - `BITOP XOR file1 request file1`
+
+## Use Case: Seat Reservations
+**Requirements**
+- Sea map maintained for the event
+- Customer can find block of seats that match their requirement
+- Seats can be reserved and booked once and only once
+- Concurrent booking of disparate seates are allowd
+

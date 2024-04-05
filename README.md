@@ -20,4 +20,4 @@
 
 
 ## Materials
-- [Code repo](https://github.com/redislabs-training/ru101)
+- [Code repo](https://github.com/redislabs-training/ru101) - [snapshot here](code/redisu/)
