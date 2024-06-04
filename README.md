@@ -24,3 +24,6 @@
 
 ## Try a ready to use development instance
 [![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/ovimihai/redis-ru101-course-notes)
+- import course data using the code container
+    `docker exec -ti code sh import_data.sh`
+- use `redis-cli` alias to run redis commands

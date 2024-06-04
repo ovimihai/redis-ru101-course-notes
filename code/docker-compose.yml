@@ -1,13 +1,16 @@
 
 services:
-  web:
+  code:
     build: .
+    container_name: code
     volumes:
      - .:/code
     depends_on:
      - redis
+    env_file:
+      - .env
   redis:
+    container_name: redis
     image: redis:7.2.4-alpine
     ports:
       - "6379:6379"
-      - "8001:8001"
