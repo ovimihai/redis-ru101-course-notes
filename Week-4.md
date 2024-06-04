@@ -95,3 +95,152 @@
 - Seats can be reserved and booked once and only once
 - Concurrent booking of disparate seates are allowd
 
+### Create a Seat Map
+- use a u32 key, can use multiple for more
+- in `create_event` will create the required bitmap
+    - use a simple convention for seat blocks: A-Z-AA...
+        - seatmap:<event_sku>:<tier>
+    - ![seat blocks map](media/image-8.png)
+    - fill all with 1s using a helper function
+        - `int(math.pow(2, min(seats_per_block, __max_seats_per_block__))) - 1`
+    - use `redis.execute_command("BITFIELD", key, *vals)` - there is no dedicated method in python
+- `get_event_seat_map` - retrieve the seatmap with `BITFIELD key GET u32 0`[0]
+- `print_event_seat_map` will use `scan_iter` to find all matches
+    - ![seatmap](media/image-9.png)
+    - wrapp every 10 seats to make visualization easyer
+- ![code output](media/image-10.png)
+
+### Checking Seat Availability
+
+![check availability](media/image-11.png)
+- `get_available`
+    - check (seat_map & required_block) == required_block (contiguos)
+        - if not shift bits in the required_block
+- `fid_seat_selection`
+    - find all blocks for event and ticket tier
+    - use SKU, ticket tier, sears_required
+    - scan_iter for all keys
+        - `bitcount` >= seats_required
+        - `get_event_seat_block`
+        - get_available -> check > 0 => append seats
+
+### Reserving Seats
+
+![reservation concurency](media/image-12.png)
+- Try to Reserve A[0] and A[5:7] - with WATCH, MULTI & EXEC on key would fail for the second client
+    - can become an issue for multiple clients at the same time
+
+- `XOR` approach - using a latch
+![xor approach](media/image-13.png)
+    - client 1 wants to reserve A0 -> use XOR operator to apply change
+    - doesn't prevent writing on the same key
+    - no need to know previous values, but needs a temporary latch
+        - set with NX=True and PX=5000
+    - this improves concurrency (user experiance)
+
+## Publish / Subscribe
+- allow for simple message brockers
+- doesn't provide delivery guarantee - if a consumer goes offline it will not receive the messages
+- suitable for feeds and streams (gaming, chat), but will miss the messages while disconnected
+- order is guaraneed on a single node
+- Types:
+    - Simple Syndication
+        - `PUBLISH channel message`
+        - `SUBSCRIBE channel [channel ...]`
+        - `UNSUBSCRIBE [channel [channel ...]]`
+    - Pattern Syndication
+        - `PSUBSCRIBE pattern [pattern ...]`
+        - `PUNSUBSCRIBE [pattern [pattern ...]]`
+    - Admin
+        - `PUBSUB subcommand [argument [argument ...]]`
+
+- `PUBLISH`
+    - send a single message to a single channel
+    - message can be any arbitrary binary string
+    - messages sent over the network will be multiplied for each client subscribed
+        - needs carefull planning
+- `SUBSCRIBE`
+    - subscribe to a fully qualified channel name (nmo wild cards)
+    - is a blocking command, but Redis can accept UNSUBSCRIBE meanwhile
+    - returns the number of clients
+        - 
+        ```bash
+        > subscribe ch-1
+        subscribe
+        ch-1
+        (integer) 1
+        ```
+    - when publishing you will get the number of clients received the message
+        - publisher
+        ```bash
+        > publish ch-1 hello
+        (integer) 1
+        ```
+        - subscriber
+        ```bash
+        message
+        ch-1
+        hello
+        ```
+    - for multiple subscribers:
+
+    ![multiple subscriptions](media/image-14.png)
+
+    ![publish on multiple channels](media/image-15.png)
+
+    ![receive from multiple channels](media/image-16.png)
+
+- `PUBSUB`
+    - `CHANNELS [pattern]` - list the active channels
+    - `NUMSUB [channel1 ... channel-N]` - number of subscribers - excluding patterned subscribers
+    - `NUMPAT` - number of patterned subscribers and the number of patterns
+
+- `PSUBSCRIBE`
+    - `?` - single wildcard
+    - `*` - multiple wildcards
+    - `[..]` - alternate characters
+    - `^` - prefixes
+    - ! use with care, all patterns will be checked on publishing a message
+    -  ![subscribe to pattern](media/image-17.png)
+
+## Use case: Notifications & Fan Out
+- Fan Out for Analytics of sales made
+    - Sales by event
+    - Sales by time of day
+- Pattern subscription
+    - Pick lottery winners
+    - Show orders in real time
+
+### Sales by Event
+- aggregate sales and sales value for each event
+- totals maintained as each order is processed
+- `purchase` generate orders then 
+    - `post_purchase` - publish to
+        - `sales_order_notify` - message: order_id 
+        - `sales_order_notify:{event}` - message: order_id
+- `listener_events_analytics`
+    - subscribe to `sales_order_notify`
+    - `order_id = message['data']`
+    - get order details
+    - increment `total_sales`
+    - increment `total_tickets_sold` 
+
+
+### Sales by time of day
+- real time histogram of sales by time of day
+- see when peaks occur and observe those peaks
+- `listener_sales_analytics`
+    - subscribe to `sales_order_notify`
+    - get order details for the timestamp of the order0
+    - use a BITFIELD (u16) for the histogram
+        - calculate bit offset: h * 16
+        - eg. 9pm: 21*16 = 336 -> `BITFIELD INCRBY key u16 336`
+
+### Filter Events
+- pattern: `*Ceremony` - all events that end with Ceremony
+- pattern: `[^Opening]*` - all events not starting with Opening (so actually Closing events)
+
+
+
+
+

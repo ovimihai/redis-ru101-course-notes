@@ -16,8 +16,13 @@
 - [Week 3](Week-3.md)
     - Transactions
     - Hashes
-    - 
-
+    - Use case: Inventory Control
+- [Week 4](Week-4.md)
+    - Bit Data
+    - Use case: Seat reservation
+    - Publish / Subscribe
+    - Use case: Notifications & Fan Out
+    
 
 ## Materials
 - [Code repo](https://github.com/redislabs-training/ru101) - [snapshot here](code/redisu/)
