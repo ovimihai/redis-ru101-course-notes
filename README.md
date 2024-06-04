@@ -32,3 +32,4 @@
 - import course data using the code container
     `docker exec -ti code sh import_data.sh`
 - use `redis-cli` alias to run redis commands
+
