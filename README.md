@@ -21,3 +21,6 @@
 
 ## Materials
 - [Code repo](https://github.com/redislabs-training/ru101) - [snapshot here](code/redisu/)
+
+## Try a ready to use development instance
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/ovimihai/redis-ru101-course-notes)

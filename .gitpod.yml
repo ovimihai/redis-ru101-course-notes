@@ -1,0 +1,14 @@
+ports:
+  - port: 6379
+
+tasks:
+  - name: Start Redis Stack
+    init: |
+     cd code && docker-compose pull
+    command: |
+     cd code
+     alias redis-cli="docker exec -it redis-stack redis-cli" 
+     echo "Use redis-cli to interact with Redis here."
+     docker-compose up -d
+     gp sync-done finished
+    openMode: split-left
