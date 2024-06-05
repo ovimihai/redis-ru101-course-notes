@@ -69,3 +69,23 @@
 >   - Should limit the result set
 > - Counting effort is proportional to the number of points in the search area
 >   - Should limit the search area
+
+### Use Case: Finding Events and Venues
+Objectives:
+- Find venues from a given point
+- Find events from a given subway station
+- Find venues on a given subway line
+
+![alt text](media/image-27.png)
+
+- `create_venues` - uses `geoadd` to add coordinates and venue to the `geo:venues` key
+- use `georadius` to search venues within a specified area
+- use `georadiusbymember` to search venues near a specified stadium
+    - will also return the stadium and distance 0.0
+![alt text](media/image-30.png)
+
+![alt text](media/image-28.png)
+- use faceted search
+- `geoadd` long, lat, venue to key: geo:events:{event_type}
+- use `georadius` to query matching events by sport
+![alt text](media/image-29.png)
