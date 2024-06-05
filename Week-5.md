@@ -101,3 +101,90 @@ Objectives:
     - `georadius "geo:transits:Keiyo Line" 139.771977 35.668024 5 km`
     - `geodist "geo:transits:Keiyo Line" "Makuhari Messe" "Tokyo Tatsumi International Swimming Center" km`
     - `georadiusbymember "geo:transits:Keiyo Line" "Makuhari Messe" 20 km`
+
+
+## Lua
+- server side scripting
+- lightweight, efficient, embeddable scripting language
+- Lua is the Portuguese word for moon (developed in Rio, Brasil)
+- widely adopted because is fast, lightweight and powerful
+- small footprint, easy to incorporate into products
+- integrated in Redis
+- Lua allows you to wrap a set of Redis commands, like loops, conditionals etc, to manipulate keys without a network trip
+- can think as database procedures
+- use with care
+- ran atomically like commands
+
+- `EVAL script numkeys keu [key ...] arg[arg ...]`
+![alt text](media/image-33.png)
+- deal errors when calling redis commands inside lua
+    - redis.call - will propagate the error and EVAL will fail
+    - redis.pcall - will return the error response - dealth then programatically
+- KEYS[] - include all keys passed
+- ARGV[] - include all arguments passed
+- Language Features
+    - Variables
+    - Operators
+    - Conditions
+    - Loops, etc
+- Can define complex control flows while executing commands against dthe data stored in Redis
+- Lua scripts are similar to Transactions, they run in a single atomic processes, with some exceptions
+
+### Good practices
+Rule #1 
+- keys should be passed in, not hard-coded 
+- this is not enforced
+
+Rule #2
+- Pay attention to array keys, they are one-based
+
+Rule #3
+- pass floats as strings to preserve precisions - by default they are truncated to int
+
+Handle ints
+![handle ints](media/image-35.png)
+
+Return lua tables as multi bulk
+![alt text](media/image-36.png)
+
+### Data Types conversion
+![alt text](media/image-34.png)
+
+### EVAL
+- is and atomic operation, with some exceptions
+- steps:
+    - sent over the network
+    - parsed
+    - executed
+    - results are returned
+    - cache compiled scripts
+- `SCRIPT LOAD script` - loads the script and returns a "hash digest"
+- `EVALSHA sha1 numkeys key [key ...] arg[arg ...]` - run already loaded scripts
+![load and use script](media/image-37.png)
+- `SCRIPT EXISTS sha1[sha1 ...]` - return an booleans return (1 = exists)
+- `SCRIPT FLUSH` - remove all cached scripts - cleanup
+- `SCRIPT KILL` - terminate the current executing script
+    - if a script has a bug, or finishes too slow
+- `SCRIPT DEBUG YES|SYNC|NO` - invoke an interactive debugger
+    - :exclamation: DO NOT use in Production
+
+- `EVAL` will run atomically, oder commands will be queued up waiting to finish
+- a script may run nup to 5 seconds before Redis starts accepting new commands
+    - default can be changed
+- when the execution threshold is surpassed, Redis will not terminate the script
+    - the server will log a "long running script"
+    - Redis will start accepting commands, but will not run them
+    - Redis will respond with a BUSY response
+        - you need to handle the BUSY response in the code
+    - if a script is read only or it has surpassed the execution threashold but has not performed a right
+        - then `SCRIPT KILL` can be ran safely
+        - however if data has ben written, the only safe option is `SHUTDOWN NOSAVE` command
+            - terminate server, without saving anything after the last Disk Flush
+    - :exclamation: devs should make sure scripts don't excede the threshold
+
+#### EVAL tips
+- keep the scripts to absolute minumum
+    - check commands, time complexity, data cardinality
+- know that script defines your transaction
+    - break the script down in smaller pieces
+- test, test, test with production like values
