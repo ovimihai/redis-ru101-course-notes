@@ -32,4 +32,5 @@
 - import course data using the code container
     `docker exec -ti code sh import_data.sh`
 - use `redis-cli` alias to run redis commands
-
+- run tests in code container
+    `docker exec -ti code python redisu/ru101/uc05-finding-venues/finding_venues.py`
