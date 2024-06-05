@@ -89,3 +89,15 @@ Objectives:
 - `geoadd` long, lat, venue to key: geo:events:{event_type}
 - use `georadius` to query matching events by sport
 ![alt text](media/image-29.png)
+
+- Store subway Lines data
+
+![alt text](media/image-31.png)
+- use a reverse index
+- key: geo:transits:{subway_line}
+- use `georadius` with the station and the maximum distance
+- use `geodist` to compute the distance
+![alt text](media/image-32.png)
+    - `georadius "geo:transits:Keiyo Line" 139.771977 35.668024 5 km`
+    - `geodist "geo:transits:Keiyo Line" "Makuhari Messe" "Tokyo Tatsumi International Swimming Center" km`
+    - `georadiusbymember "geo:transits:Keiyo Line" "Makuhari Messe" 20 km`
