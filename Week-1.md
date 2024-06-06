@@ -1,4 +1,4 @@
-# RU101 Week 1
+# Week 1
 
 [Documentation for Key commands at redis.io](https://redis.io/commands#generic)  
 [Wikipedia article on Glob style wildcards](https://en.wikipedia.org/wiki/Glob_(programming))
@@ -7,33 +7,33 @@
 - used for primary access to data values
 - Unique
 - Binary Safe: "Foo", 42, 3.1215. 0xff, any sequence of bytes
-- Up to 512MB in size, super long keys not recomanded
+- Up to 512MB in size, super long keys not remanded
 
 ### Key Spaces
 - no classic databases but uses Logical databases
 - Logical database 
     - single flat key space
     - no automatic separation of key names
-    - keep it simple, no namespacing complexity
+    - keep it simple, no namespaces complexity
     - identified by a zero-based index
     - default db is: `Database zero`
     - best suited for different key spaces for the same application
     - Restrictions
         - Redis cluster supports only 0
-        - many tools asume you use only db0
+        - many tools assume you use only db0
 
 ### Key names structure
     - can use a separator like `:`  
-        - `user:id:followes` - `user:100:followers`
+        - `user:id:followers` - `user:100:followers`
     - make sure is consistent between teams
     - case sensitive
 
 ### Manipulate keys
-- `SET key value [EX seconds] [PX miliseconds] [NX|XX]`
+- `SET key value [EX seconds] [PX milliseconds] [NX|XX]`
     - set TTL
         - EX - expire after seconds
-        - PX - expire after miliseconds
-    - check for existance
+        - PX - expire after milliseconds
+    - check for existence
         - NX - not exists
             - set will not work if the key already exists
         - XX - already exists
