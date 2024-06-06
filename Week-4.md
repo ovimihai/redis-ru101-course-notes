@@ -93,7 +93,7 @@
 - Sea map maintained for the event
 - Customer can find block of seats that match their requirement
 - Seats can be reserved and booked once and only once
-- Concurrent booking of disparate seates are allowd
+- Concurrent booking of disparate seats are allowed
 
 ### Create a Seat Map
 - use a u32 key, can use multiple for more
@@ -107,14 +107,14 @@
 - `get_event_seat_map` - retrieve the seatmap with `BITFIELD key GET u32 0`[0]
 - `print_event_seat_map` will use `scan_iter` to find all matches
     - ![seatmap](media/image-9.png)
-    - wrapp every 10 seats to make visualization easyer
+    - wrap every 10 seats to make visualization easier
 - ![code output](media/image-10.png)
 
 ### Checking Seat Availability
 
 ![check availability](media/image-11.png)
 - `get_available`
-    - check (seat_map & required_block) == required_block (contiguos)
+    - check (seat_map & required_block) == required_block (contiguous)
         - if not shift bits in the required_block
 - `fid_seat_selection`
     - find all blocks for event and ticket tier
@@ -136,13 +136,13 @@
     - doesn't prevent writing on the same key
     - no need to know previous values, but needs a temporary latch
         - set with NX=True and PX=5000
-    - this improves concurrency (user experiance)
+    - this improves concurrency (user experience)
 
 ## Publish / Subscribe
-- allow for simple message brockers
+- allow for simple message brokers
 - doesn't provide delivery guarantee - if a consumer goes offline it will not receive the messages
 - suitable for feeds and streams (gaming, chat), but will miss the messages while disconnected
-- order is guaraneed on a single node
+- order is guaranteed on a single node
 - Types:
     - Simple Syndication
         - `PUBLISH channel message`
@@ -158,7 +158,7 @@
     - send a single message to a single channel
     - message can be any arbitrary binary string
     - messages sent over the network will be multiplied for each client subscribed
-        - needs carefull planning
+        - needs careful planning
 - `SUBSCRIBE`
     - subscribe to a fully qualified channel name (nmo wild cards)
     - is a blocking command, but Redis can accept UNSUBSCRIBE meanwhile

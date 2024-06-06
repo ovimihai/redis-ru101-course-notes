@@ -8,7 +8,7 @@
 - `MULTI` - indicated the start of a transaction
     - **no nested transactions** (multi inside multi)
 - `EXEC` - executes the queued commands
-    - returns responses for all queed commands
+    - returns responses for all queued commands
 - `DISCARD` throws away queued commands
 - changes are isolated for each client
 - while running a transaction
@@ -45,7 +45,7 @@
 - mini-key value store within a key
 - an alternative to store serialized strings
 - enables you to access a part of the data
-- schemaless - can change fields dinamically
+- schemaless - can change fields dynamically
 - can't set expiration for individual fields
 - `HSET key field value [field value ...]`
 - `HGET key field [field ...]` - O(1)
@@ -139,7 +139,7 @@ Process sequence diagram
     - Reservation
     - Credit Card Authorization
         - Complete Reservation on success
-        - Backout Reservation on failure
+        - Back out Reservation on failure
 
 - Normal purchase steps
     - Reservation
@@ -167,7 +167,7 @@ Process sequence diagram
             - `HMSET sale_order:order_id1 '{ order_id1, event_sku, ...}'`
         - `EXEC`
 
-    - Backout hold - credit card failed
+    - Back out hold - credit card failed
         - `WATCH event1`
         - qty = `HGET ticket_hold:event1 qty:order_id1`
         - tier = `HGET ticket_hold:event1 tier:order_id1`
@@ -179,10 +179,10 @@ Process sequence diagram
             - `HDEL ticket_hold:event1 ts:order_id1`
         - `EXEC`
 
-- Backout tickets automatically
+- Back out tickets automatically
     - check expired tickets
     - `HSCAN` periodically on `ticket_hold:event1 ts:*`
-        - compare with a cutooff_limit
-    - this is not recomanded for large datasets
+        - compare with a cutoff_limit
+    - this is not remanded for large datasets
     - better use a sorted set for larger number of reservations
     

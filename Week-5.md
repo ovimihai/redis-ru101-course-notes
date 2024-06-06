@@ -2,14 +2,14 @@
 
 ## Geospatial
 - Store Longitude and latitude pairs
-- Retrieve: distance, rradius
+- Retrieve: distance, radius
 - Advantages: low latency and high throughput
 - Use case: GPS tagged devices
 
 ### GeoHash
 - 52 bits integer - [docs](https://en.wikipedia.org/wiki/Geohash)
 - Stored as Sorted Sets
-- uses Y,X coordinates - longitude(meridian, vertical), [-180, 180], latitude (paralel, horizontal, [-90, 90])
+- uses Y,X coordinates - longitude(meridian, vertical), [-180, 180], latitude (parallel, horizontal, [-90, 90])
     - for compatibility with other services, data sources and standards ([EPSG:900913](https://epsg.io/900913), )
 
 ### Geospatial commands
@@ -26,11 +26,11 @@
     - remove some ending characters will decrease precision
 - uses the [Haversine formula](https://en.wikipedia.org/wiki/Haversine_formula) - assumes a perfect sphere
     - accuracy of 60cm at the equator and 0.5% as you reach the poles
-    - better for regions nearer to the ecuator
+    - better for regions nearer to the ecuador
     - start-end point - Meridian at Greenwich Observatory in London
     - longitude between -180 to 180
     - latitude between -85.05112878 and 85.05112878
-    - `GEOADD` will fail if values are outside the boundries
+    - `GEOADD` will fail if values are outside the boundaries
 - can use Sorted Sets operations
     - `ZUNIONSTORE` and `ZINYERSTORE`
     - :exclamation: by default this commands will SUM up the score
@@ -39,7 +39,7 @@
     - :exclamation: `GEOADD` on the same member wil UPDATE the members position
 
 - `GEODIST key member1 member2 [unit]` - unit = m, km, ft, miles
-    - can not copute dist across different keys
+    - can not compute dist across different keys
 ![alt text](media/image-21.png)
 
 - `GEORADIUS key longitude latitude radius [unit]`
@@ -119,7 +119,7 @@ Objectives:
 ![alt text](media/image-33.png)
 - deal errors when calling redis commands inside lua
     - redis.call - will propagate the error and EVAL will fail
-    - redis.pcall - will return the error response - dealth then programatically
+    - redis.pcall - will return the error response - dealt then programmatically
 - KEYS[] - include all keys passed
 - ARGV[] - include all arguments passed
 - Language Features
@@ -127,7 +127,7 @@ Objectives:
     - Operators
     - Conditions
     - Loops, etc
-- Can define complex control flows while executing commands against dthe data stored in Redis
+- Can define complex control flows while executing commands against the data stored in Redis
 - Lua scripts are similar to Transactions, they run in a single atomic processes, with some exceptions
 
 ### Good practices
@@ -141,7 +141,7 @@ Rule #2
 Rule #3
 - pass floats as strings to preserve precisions - by default they are truncated to int
 
-Handle ints
+Handle INTs
 ![handle ints](media/image-35.png)
 
 Return lua tables as multi bulk
@@ -180,17 +180,17 @@ Return lua tables as multi bulk
         - then `SCRIPT KILL` can be ran safely
         - however if data has ben written, the only safe option is `SHUTDOWN NOSAVE` command
             - terminate server, without saving anything after the last Disk Flush
-    - :exclamation: devs should make sure scripts don't excede the threshold
+    - :exclamation: devs should make sure scripts don't exceed the threshold
 
 #### EVAL tips
-- keep the scripts to absolute minumum
+- keep the scripts to absolute minimum
     - check commands, time complexity, data cardinality
 - know that script defines your transaction
     - break the script down in smaller pieces
 - test, test, test with production like values
 
 
-## Use CaseL Inventory with Lua
+## Use Case Inventory with Lua
 
 ![purchase fields](media/image-38.png)
 - model purchase data as a hash
@@ -209,7 +209,7 @@ Return lua tables as multi bulk
     - this will load the script into redis
     - and will save the sha code into a Python callable
 - run the Python callable
-    - now the Lua code will actuall run in Redis
+    - now the Lua code will actual run in Redis
 
 ```python
 stats_script = """
@@ -225,7 +225,7 @@ stats_script = """
       return nil
     end
 """
-# Pythoon will register the script and keep in the calable stats the sha code
+# Pythoon will register the script and keep in the callable stats the sha code
 stats = redis.register_script(stats_script)                     
 # now the script will be actually ran
 total = stats(["hits:homepage", "hits:loginpage"], ["sum"])
@@ -236,7 +236,7 @@ total = stats(["hits:homepage", "hits:loginpage"], ["sum"])
 2. If the reservation is successful, create a new purchase with an initial state of RESERVE
 3. Wait for user payment information
 4. If the ticket hold has not expired, then transition the purchase to AUTHORIZE
-5. If the credit card purchase is cussessful, then complete the purchase by permanently reserving the seats and transitioning the purchase to COMPLETE
+5. If the credit card purchase is successful, then complete the purchase by permanently reserving the seats and transitioning the purchase to COMPLETE
 
 ![ticket flow](media/image-42.png)
 
@@ -265,10 +265,10 @@ This is an ideal example of the Lua scripting in Redis mindset
 - simple implementation, Redis-like operations
 - simplifies application code
 - preserves atomicity
-- no need to add special exeption handling for any potential errors
+- no need to add special exception handling for any potential errors
 
 ### Reserving tickets
-- comparing just `requested_tickets <= event_capacity` wil lnot be enouth
+- comparing just `requested_tickets <= event_capacity` will not be enough
 - then we do (tickets_held + requested_tickets) <= event_capacity
     - this requires the portion that computes the total number of existing holds
 
@@ -311,5 +311,5 @@ else
 end
 
 ```
-- in Lua you cancatenate strings with `..` operator
+- in Lua you concatenate strings with `..` operator
 

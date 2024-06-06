@@ -18,15 +18,15 @@
         - ![zr](media/image-rem-range.png)
 
 - use cases
-    - sorded set - leaderboard 
-        - time complexity: ZADD + ZREMRANGEBYRANK (cheam if you remove just few elements)
+    - sorted set - leader board 
+        - time complexity: ZADD + ZREMRANGEBYRANK (ok if you remove just few elements)
     - lists
         - activity stream
         - tc: L/RPUSH+LTRIM - efficient if most elements are retained
 
 - operations for sorted sets work for sets too
     - `ZADD sales:judo 1500 june 200 bill 200 mary`
-    - `ZADD sales:wresling 1800 bill 1000 bob 800 mary`
+    - `ZADD sales:wrestling 1800 bill 1000 bob 800 mary`
     - `SADD waitlist:taekwondo emma bill mary`
     - intersect set and sorted set with WEIGHTS
     - ZINTERSTORE
@@ -38,7 +38,7 @@
     - 
         ```
         ZINTERSTORE promo:taekwondo 3 
-            sales:judo sales:wresling waitlist:taekwondo
+            sales:judo sales:wrestling waitlist:taekwondo
             weights 1.2 0.8 1000
             aggregate max
         ```
@@ -70,7 +70,7 @@
         - get all objects that match
     - `GET key` and inspect
     - big complexity - scan * get then deserialize and inspect
-    - time linearely increasing
+    - time linearly increasing
 
 - using sets
     - build sets with each attribute value combination
@@ -88,7 +88,7 @@
     - search function will build the SINTER query from searched attributes
     - time complexity
         - SINTER - time based on cardinality of first set and and the number of sets being intersected O(N*M) then GET with O(1)
-        - the cardinality depends on data distribuion - you need **insight inside your data**
+        - the cardinality depends on data distribution - you need **insight inside your data**
 
 - using hashes
     - combine all searchable attributes
@@ -96,7 +96,7 @@
         - `SADD hfs:hash_value sku1 sku2`
         - hash value is cryptic, but easy to generate in code
         - to search just scan the set `SSCAN hfs:hash_value` 
-    - time complexity: SSCAN O(n)
+    - time complexity: `SSCAN` O(n)
     - if an event changes you need to change the sets
     - take in account the **rate change of your data**
 

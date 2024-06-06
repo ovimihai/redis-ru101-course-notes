@@ -10,13 +10,13 @@
 - Up to 512MB in size, super long keys not recomanded
 
 ### Key Spaces
-- no classic databasesc but uses Logical databases
+- no classic databases but uses Logical databases
 - Logical database 
     - single flat key space
     - no automatic separation of key names
     - keep it simple, no namespacing complexity
     - identified by a zero-based index
-    - dafault db is: `Database zero`
+    - default db is: `Database zero`
     - best suited for different key spaces for the same application
     - Restrictions
         - Redis cluster supports only 0
@@ -42,7 +42,7 @@
 - `KEYS pattern`
     - blocks everything
     - ! Don't use in production
-    - usefull for dev
+    - useful for dev
     - `KEYS user:1*`
 - `SCAN slot [MATCH pattern] [COUNT count]`
     - iterates using a cursor
@@ -51,7 +51,7 @@
     - may return 0 or more keys per call
     - use slot to go further
     - bigger count value might block for a longer time
-    - returns cursor 0 whan no more keys to iterate
+    - returns cursor 0 when no more keys to iterate
 - `DEL key [key ...]`
     - remove the key and the memory associated with the key
     - blocking operation
@@ -64,16 +64,16 @@
     - 1 exists
     - 0 doesn't exist
 - `GETRANGE key start stop` - get elements from string
-- `APPEND key string` - appends a string to another value (can be int, wil rezult string)
+- `APPEND key string` - appends a string to another value (can be int, wil result string)
 
 ### Keys expiration
-- Expiration times set in: miliseconds, seconds or UNIX timestamp
+- Expiration times set in: milliseconds, seconds or UNIX timestamp
 - Keys will eventually be deleted after the expiration time passes
 - TTL - time to live
     - `EXPIRE key seconds`
     - `EXPIREAT key timestamp`
-    - `PEXPIRE key miliseconds`
-    - `PEXPIREAT key miliseconds-timestamp`
+    - `PEXPIRE key milliseconds`
+    - `PEXPIREAT key milliseconds-timestamp`
 - insect with
     - `TTL key`
     - `PTTL key`
@@ -89,7 +89,7 @@
 - can implement counters
 
 - Manipulate with `SET`, `GET`
-- clasic usecase: 
+- classic use case: 
     - cache database response as JSON to offload the database
 - Manipulate as a number, but stored still as string
 - `INCR`, `INCRBY`, `DECR`, `DECRBY`
@@ -106,7 +106,7 @@
 
 ## Hashes
 - similar to a Python dictionaries
-- mutable: add, change, incremente, remove
+- mutable: add, change, increment, remove
 - store values as strings
 - schemaless, but can think as lightweight objects or as rows
 - create - `HSET key field value [field value ..]`
@@ -150,7 +150,7 @@
 - `LINSERT key BEFORE/AFTER pivot_value`
 - `LSET key index value`
 - `LREM key cout value`
-- usage: activity stream (recent activity), producer-consummer
+- usage: activity stream (recent activity), producer-consumer
 
 ## Sets
 - set of values with no duplicates
@@ -180,12 +180,12 @@
 
 ## Sorted sets
 - ordered list of elements
-- usefull for: priority queues, leaderboards and secondary indexing in general
+- useful for: priority queues, leader boards and secondary indexing in general
 - set member and score (float)
-    - sort by score, then member lexicografic
+    - sort by score, then member lexicographic
 - can have same score, but the set contains unique values
 - `ZADD key score member`
-- `ZADD key [NX|XX] [CH] [INCR] score member [scode member]`
+- `ZADD key [NX|XX] [CH] [INCR] score member [score member]`
     - NX - adds if not exists
     - XX - updates an existing element
     - CH - return the number of elements changed
