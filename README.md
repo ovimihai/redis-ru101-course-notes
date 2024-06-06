@@ -25,6 +25,7 @@
 - [Week 4](Week-4.md)
     - Geospatial
     - Lua scripts
+    - Use case: Inventory with lua
 
 
 ## Materials
@@ -37,3 +38,5 @@
 - use `redis-cli` alias to run redis commands
 - run tests in code container
     `docker exec -ti code python redisu/ru101/uc05-finding-venues/finding_venues.py`
+
+[Course completed](https://university.redis.com/certificates/b6160122b83a485fa4300ddddfbeb1e5) , yey 😄
