@@ -22,10 +22,12 @@
     - Use case: Seat reservation
     - Publish / Subscribe
     - Use case: Notifications & Fan Out
-- [Week 4](Week-4.md)
+- [Week 6](Week-5.md)
     - Geospatial
     - Lua scripts
-    - Use case: Inventory with lua
+    - Use case: Inventory with Lua
+- [Week 6](Week-6.md)
+    - Final exam tips
 
 
 ## Materials
