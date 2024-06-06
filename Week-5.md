@@ -115,7 +115,7 @@ Objectives:
 - use with care
 - ran atomically like commands
 
-- `EVAL script numkeys keu [key ...] arg[arg ...]`
+- `EVAL script numkeys key [key ...] arg[arg ...]`
 ![alt text](media/image-33.png)
 - deal errors when calling redis commands inside lua
     - redis.call - will propagate the error and EVAL will fail
@@ -188,3 +188,128 @@ Return lua tables as multi bulk
 - know that script defines your transaction
     - break the script down in smaller pieces
 - test, test, test with production like values
+
+
+## Use CaseL Inventory with Lua
+
+![purchase fields](media/image-38.png)
+- model purchase data as a hash
+
+![event](media/image-39.png)
+- model the event as a hash
+
+![purchase hold](media/image-40.png)
+- model the purchase hold as a hash with expiration
+
+![alt text](media/image-41.png)
+- create an events specific set to link holds to event
+
+### Manage Lua Scripts with Python
+- define the script as a multiline variable and use `redis.register_script`
+    - this will load the script into redis
+    - and will save the sha code into a Python callable
+- run the Python callable
+    - now the Lua code will actuall run in Redis
+
+```python
+stats_script = """
+    -- Convert arguments to numbers
+    local k1 = redis.call('get', KEYS[1])
+    local k2 = redis.call('get', KEYS[2])
+
+    if ARGV[1] == "sum" then
+      return k1 + k2
+    elseif ARGV[1] == "max" then
+      return math.max(k1, k2)
+    else
+      return nil
+    end
+"""
+# Pythoon will register the script and keep in the calable stats the sha code
+stats = redis.register_script(stats_script)                     
+# now the script will be actually ran
+total = stats(["hits:homepage", "hits:loginpage"], ["sum"])
+```
+
+### Ticket Purchase Flow
+1. Reserve the tickets by attempting to create a new ticket hold
+2. If the reservation is successful, create a new purchase with an initial state of RESERVE
+3. Wait for user payment information
+4. If the ticket hold has not expired, then transition the purchase to AUTHORIZE
+5. If the credit card purchase is cussessful, then complete the purchase by permanently reserving the seats and transitioning the purchase to COMPLETE
+
+![ticket flow](media/image-42.png)
+
+### Code the purchase state update
+
+```lua
+-- KEYS[1] is a key of type Hash pointing to a purchase.
+-- ARGV[1] is the newly-requested state.
+-- ARGV[2] is the current timestamp.
+-- Returns 1 if successful. Otherwise, return 0.
+local current_state = redis.call('HGET', KEYS[1], 'state')
+local requested_state = ARGV[1]
+
+if ((requested_state == 'AUTHORIZE' and current_state == 'RESERVE') or
+    (requested_state == 'FAIL' and current_state == 'RESERVE') or
+    (requested_state == 'FAIL' and current_state == 'AUTHORIZE') or
+    (requested_state == 'COMPLETE' and current_state == 'AUTHORIZE')) then
+    redis.call('HMSET', KEYS[1], 'state', requested_state, 'ts', ARGV[2])
+    return 1
+else
+    return 0
+end
+```
+This is an ideal example of the Lua scripting in Redis mindset
+- is brief
+- simple implementation, Redis-like operations
+- simplifies application code
+- preserves atomicity
+- no need to add special exeption handling for any potential errors
+
+### Reserving tickets
+- comparing just `requested_tickets <= event_capacity` wil lnot be enouth
+- then we do (tickets_held + requested_tickets) <= event_capacity
+    - this requires the portion that computes the total number of existing holds
+
+```lua
+-- KEYS[1] is a key of type Hash pointing to an event.
+-- ARGV[1] is the customer ID.
+-- ARGV[2] is the requested number of general admission tickets.
+-- ARGV[3] is the number of seconds to hold the tickets.
+-- Returns 1 if successful. Otherwise, returns 0.
+
+local event_capacity = tonumber(redis.call('HGET', KEYS[1], 'available:General'))
+local ticket_holds_key = 'holds:' .. KEYS[1]
+
+local customer_hold_key = 'hold:' .. ARGV[1] .. ':' .. KEYS[1]
+local requested_tickets = tonumber(ARGV[2])
+local hold_timeout = tonumber(ARGV[3])
+
+-- Calculate the total number of outstanding holds
+local hold_keys = redis.call('SMEMBERS', ticket_holds_key)
+local tickets_held = 0
+
+for _,hold_key in ipairs(hold_keys) do
+    local count = redis.call('HGET', hold_key, 'qty')
+    -- If the return is nil, then remove the hold from the list
+    if (count == nil) then
+        redis.call('SREM', ticket_holds_key, hold_key)
+    else
+        tickets_held = tickets_held + count
+    end
+end
+
+-- If capacity remains, then create a new lease
+if (tickets_held + requested_tickets) <= event_capacity then
+    redis.call("HMSET", customer_hold_key, 'qty', requested_tickets, 'state', 'HELD')
+    redis.call("EXPIRE", customer_hold_key, hold_timeout)
+    redis.call("SADD", ticket_holds_key, customer_hold_key)
+    return 1
+else
+    return requested_tickets
+end
+
+```
+- in Lua you cancatenate strings with `..` operator
+

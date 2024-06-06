@@ -22,7 +22,10 @@
     - Use case: Seat reservation
     - Publish / Subscribe
     - Use case: Notifications & Fan Out
-    
+- [Week 4](Week-4.md)
+    - Geospatial
+    - Lua scripts
+
 
 ## Materials
 - [Code repo](https://github.com/redislabs-training/ru101) - [snapshot here](code/redisu/)
